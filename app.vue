@@ -1,5 +1,23 @@
-<script setup lang="ts">
+<template>
+  <div class="container mx-auto">
+    <h1 class="text-5xl">Todos</h1>
+    <div class="py-4">
+      <input v-model="inputValue" type="text" placeholder="add todo" v-on:keydown="addTodo"
+        class="border rounded-xl p-2 w-96">
+    </div>
+    <ol class="py-4 list-decimal list-inside">
+      <li v-for="todo in todos" class="py-2">
+        <span v-on:click="() => todo.done = !todo.done" v-bind:class="{ 'line-through': todo.done }"
+          class="pl-2 pr-4">{{
+            todo.name }}</span>
+        <button v-on:click="() => removeTodo(todo.id)"
+          class="bg-red-400 text-red-800 w-8 h-8 rounded rounded-full">X</button>
+      </li>
+    </ol>
+  </div>
+</template>
 
+<script setup lang="ts">
 type Todo = {
   id: string
   name: string
@@ -24,8 +42,7 @@ onMounted(() => {
 watchEffect(() => {
   if (import.meta.server) return
   if (!isMounted.value) return
-  const encoded = JSON.stringify(todos.value)
-  localStorage.setItem('todos', encoded)
+  localStorage.setItem('todos', JSON.stringify(todos.value))
 })
 
 function addTodo(e: any) {
@@ -42,34 +59,7 @@ function addTodo(e: any) {
 }
 
 function removeTodo(id: string) {
-  const filtered = todos.value.filter((t) => t.id !== id)
-  todos.value = filtered
+  todos.value = todos.value.filter((t) => t.id !== id)
 }
 
-function toggleDone(id: string) {
-  const edited = todos.value.map((t) => {
-    if (t.id === id) t.done = !t.done
-    return t
-  })
-
-  todos.value = edited
-}
 </script>
-
-<template>
-  <div class="container mx-auto">
-    <h1 class="text-5xl">Todos</h1>
-    <div class="py-4">
-      <input v-model="inputValue" type="text" placeholder="add todo" v-on:keydown="addTodo"
-        class="border rounded-xl p-2 w-96">
-    </div>
-    <ol class="py-4 list-decimal list-inside">
-      <li v-for="todo in todos" class="py-2">
-        <span v-on:click="() => toggleDone(todo.id)" v-bind:class="{ 'line-through': todo.done }" class="pl-2 pr-4">{{
-          todo.name }}</span>
-        <button v-on:click="() => removeTodo(todo.id)"
-          class="bg-red-400 text-red-800 w-8 h-8 rounded rounded-full">X</button>
-      </li>
-    </ol>
-  </div>
-</template>
